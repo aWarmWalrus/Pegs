@@ -5,72 +5,24 @@ import (
 )
 
 // y = 0 is the highest y value. all y values should be lower
-// WINCOND is the set of coordinates we want to be clear of
-// ROW 5 CONDITIONS
-var wincond5 = []Coord{
-	{-4, 0}, {-3, 0}, {-2, 0}, {-1, 0}, {0, 0}, {1, 0}, {2, 0}, {3, 0}, {4, 0},
-	{-1, -1}, {0, -1}, {1, -1}, {2, -1}, {3, -1},
-	{-1, -2}, {0, -2}, {1, -2}, {2, -2},
-	{0, -3}, {2, -3},
-}
+// wincond is the set of coordinates we want to be clear of
 
-var target5 = []Coord{
-	{-2, 0}, {-1, 0}, {0, 0}, {1, 0}, {2, 0},
-	{0, -1},
-	{0, -2},
-	{0, -3},
-}
-
-// ROW 4 CONDITIONS
-var wincond4 = []Coord{
-	{-2, 0},
-	{-2, -1},
-	{-1, 0},
-	{-1, -1},
-	{0, 0},
-	{0, -1},
-	{1, 0},
-	{2, 0},
-}
-
-// TARGET is the set of coordinates the pegs start at
-var target4 = []Coord{
-	{-2, 0},
-	{-1, 0},
-	{0, -1},
-	{1, 0},
-	{2, 0},
-}
-
-// ROW 3 CONDITIONS
-var wincond3 = []Coord{
-	{0, 0},
-	{1, 0},
-	{2, 0},
-	{0, -1},
-}
-
-var target3 = []Coord{
-	{0, 0},
-	{0, -1},
-}
-
-var WINCOND, TARGET []Coord
-var WIDTH, HEIGHT int
+var wincond, target []Coord
+var width, height int
 
 type MapBoard struct {
 	G map[Coord]bool
 }
 
-// Depends on WIDTH and HEIGHT, declared in board.go
-// Max WIDTH of 16. Uses hexadecimal
+// Depends on width and height, declared in board.go
+// Max width of 16. Uses hexadecimal
 // Each row in the grid is a hexadecimal number
 /*
 func handleBuilder(l MapBoard) int {
-	functionalX := c.X - WIDTH
-	functionalY := c.Y - HEIGHT
-	maxX := WIDTH * 2 + 1
-	maxY := HEIGHT + 1
+	functionalX := c.X - width
+	functionalY := c.Y - height
+	maxX := width * 2 + 1
+	maxY := height + 1
 	for _, := range l.G {
 
 	}
@@ -82,21 +34,20 @@ func (l *MapBoard) Init(row int, width int, height int) error {
 	l.G = make(map[Coord]bool)
 	switch row {
 	case 3:
-		TARGET = target3
-		WINCOND = wincond3
+		target = Target3
+		wincond = WinCond3
 	case 4:
-		TARGET = target4
-		WINCOND = wincond4
+		target = Target4
+		wincond = WinCond4
 	case 5:
-		TARGET = target5
-		WINCOND = wincond5
+		target = Target5
+		wincond = WinCond5
 	default:
 		return fmt.Errorf("Bad row param: %v", row)
-
 	}
-	WIDTH = width
-	HEIGHT = height
-	for _, v := range TARGET {
+	width = width
+	height = height
+	for _, v := range target {
 		l.G[v] = true
 	}
 	return nil
@@ -139,11 +90,11 @@ func (m MapBoard) Debug() {
 }
 
 func (m MapBoard) Print() {
-	fmt.Printf(" ---- MAP (%v x %v) ----\n", WIDTH*2+1, HEIGHT+1)
+	fmt.Printf(" ---- MAP (%v x %v) ----\n", width*2+1, height+1)
 
-	for j := 0; j >= -HEIGHT; j-- {
+	for j := 0; j >= -height; j-- {
 		fmt.Printf("   ")
-		for i := -WIDTH; i <= WIDTH; i++ {
+		for i := -width; i <= width; i++ {
 			if _, ok := m.G[Coord{i, j}]; ok {
 				fmt.Printf("X ")
 			} else {
@@ -159,7 +110,7 @@ func (m *MapBoard) PutPeg(c Coord) error {
 	if _, ok := m.G[c]; ok {
 		return fmt.Errorf("err: PutPeg(%v): Peg already exists")
 	}
-	if (c.X > WIDTH) || (c.Y > HEIGHT) || (c.X < -WIDTH) || (c.Y < -HEIGHT) {
+	if (c.X > width) || (c.Y > height) || (c.X < -width) || (c.Y < -height) {
 		return fmt.Errorf("err: PutPeg(%v): Peg out of bounds")
 	}
 	m.G[c] = true
@@ -220,7 +171,7 @@ func (m MapBoard) WinMa() (bool, []Coord) {
 		keys = append(keys, k)
 	}
 
-	for _, c := range WINCOND {
+	for _, c := range wincond {
 		if _, ok := m.G[c]; ok {
 			return false, keys
 		}

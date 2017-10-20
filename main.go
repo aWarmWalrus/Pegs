@@ -25,15 +25,17 @@ func debugPrint() {
 
 //--------------------------------------------------------------------------------------
 
-func handle(posQ []b.MapBoard, depth int) (int, error) {
+func handle(posQ map[uint64]bool, depth int) (int, error) {
 	fmt.Printf("\n NEXT LEVEL OF DEPTH %v ---- Queue size: %v ----\n", depth, len(posQ))
 	iTime := time.Now()
 	if depth > (*maxdepth) {
 		return 0, fmt.Errorf("handle: No solution found!")
 	}
 	win := false
-	nextQueue := []b.MapBoard{}
-	for _, board := range posQ {
+	nextQueue := make(map[uint64]bool, len(posQ))
+	symQ := make(map[uint64]bool, len(posQ)) // 1
+	for bNum, _ := range posQ {
+        board := b.IntBoard{bNum}
 		winRes, nextPegs := board.WinMa()
 		if winRes {
 			fmt.Printf("Solution found:\n")
@@ -42,43 +44,31 @@ func handle(posQ []b.MapBoard, depth int) (int, error) {
 		}
 		for _, tPeg := range nextPegs {
 			for _, direction := range MOVES {
-				dboard := b.MapBoard{}
+				dboard := b.IntBoard{}
 				//fmt.Printf("board:\n %v\n", board)
 				dboard.InitFrom(board) // copy from original board
 				if err := dboard.ExpandPeg(tPeg, direction); err != nil {
 					// don't do anything. maybe debugLog it
-				} else { //if !dboard.InQueue(nextQueue) {
-					nextQueue = append(nextQueue, dboard)
+                // Only add the board if it's not in the symmetry
+                // map already
+                } else if _, ok := symQ[dboard.G]; !ok { // 2
+					nextQueue[dboard.G] = true
+                    symQ[dboard.Symmetry()] = true // 3
 				}
 			}
 		}
-
 	}
 	if win {
 		return depth, nil
 	}
-	if !(*deduping) {
-		fmt.Printf("Win: %v\n  -- time elapsed for processing: %v\n", win, time.Since(iTime).String())
+    fmt.Printf("Win: %v\n  -- time elapsed for processing: %v\n", win, time.Since(iTime).String())
 
-		return handle(nextQueue, depth+1)
-	}
-	fmt.Printf("Win: %v\nQueue Length before cleansing: %v\n", win, len(nextQueue))
-	fmt.Printf("  -- time elapsed for processing: %v\n", time.Since(iTime).String())
-	jTime := time.Now()
-	cleanQueue := make([]b.MapBoard, 0, 10)
-	for _, nb := range nextQueue {
-		if !nb.InQueue(cleanQueue) {
-			cleanQueue = append(cleanQueue, nb)
-		}
-	}
-	fmt.Printf("Queue Length after cleansing: %v\n", len(cleanQueue))
-	fmt.Printf(" -- time elapsed for cleansing: %v\n", time.Since(jTime).String())
-	return handle(cleanQueue, depth+1)
+    return handle(nextQueue, depth+1)
 }
 
 func solve(row int) (int, error) {
 	fmt.Printf("Solving!\n")
-	gameBoard := b.MapBoard{}
+	gameBoard := b.IntBoard{}
 	if err := gameBoard.Init(row, *width, *height); err != nil {
 		return 0, err
 	}
@@ -91,10 +81,10 @@ func solve(row int) (int, error) {
 		}
 	}
 	gameBoard.Print()
-	positionQueue := make([]b.MapBoard, 1)
-	positionQueue[0] = gameBoard
-
-	res, err := handle(positionQueue, 0)
+	positionMap := make(map[uint64]bool, 1)
+	positionMap[gameBoard.G] = true
+    
+	res, err := handle(positionMap, 0)
 	if err != nil {
 		return 0, err
 	}
