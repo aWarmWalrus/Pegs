@@ -6,21 +6,37 @@ import (
 
 // y = 0 is the highest y value. all y values should be lower
 // WINCOND is the set of coordinates we want to be clear of
-// ROW 4 CONDITIONS
-var wincond4 = []Coord{
-	{-2, 0},
-	{-1, 0},
-	{0, 0},
-	{1, 0},
-	{2, 0},
+// ROW 5 CONDITIONS
+var wincond5 = []Coord{
+	{-4, 0}, {-3, 0}, {-2, 0}, {-1, 0}, {0, 0}, {1, 0}, {2, 0}, {3, 0}, {4, 0},
+	{-1, -1}, {0, -1}, {1, -1}, {2, -1}, {3, -1},
+	{-1, -2}, {0, -2}, {1, -2}, {2, -2},
+	{0, -3}, {2, -3},
+}
+
+var target5 = []Coord{
+	{-2, 0}, {-1, 0}, {0, 0}, {1, 0}, {2, 0},
 	{0, -1},
 	{0, -2},
 	{0, -3},
 }
 
+// ROW 4 CONDITIONS
+var wincond4 = []Coord{
+	{-2, 0},
+	{-2, -1},
+	{-1, 0},
+	{-1, -1},
+	{0, 0},
+	{0, -1},
+	{1, 0},
+	{2, 0},
+}
+
 // TARGET is the set of coordinates the pegs start at
 var target4 = []Coord{
-	{0, 0},
+	{-2, 0},
+	{-1, 0},
 	{0, -1},
 	{1, 0},
 	{2, 0},
@@ -71,6 +87,9 @@ func (l *MapBoard) Init(row int, width int, height int) error {
 	case 4:
 		TARGET = target4
 		WINCOND = wincond4
+	case 5:
+		TARGET = target5
+		WINCOND = wincond5
 	default:
 		return fmt.Errorf("Bad row param: %v", row)
 
