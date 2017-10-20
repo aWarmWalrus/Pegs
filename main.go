@@ -33,14 +33,12 @@ func handle(posQ []b.MapBoard, depth int) (int, error) {
 	}
 	win := false
 	nextQueue := []b.MapBoard{}
-	//fmt.Printf("posQ:\n %v\n", posQ)
 	for _, board := range posQ {
 		winRes, nextPegs := board.WinMa()
 		if winRes {
 			fmt.Printf("Solution found:\n")
 			board.Print()
 			win = true
-			//return depth, nil
 		}
 		for _, tPeg := range nextPegs {
 			for _, direction := range MOVES {
@@ -49,7 +47,6 @@ func handle(posQ []b.MapBoard, depth int) (int, error) {
 				dboard.InitFrom(board) // copy from original board
 				if err := dboard.ExpandPeg(tPeg, direction); err != nil {
 					// don't do anything. maybe debugLog it
-					//fmt.Printf("%v", err)
 				} else { //if !dboard.InQueue(nextQueue) {
 					nextQueue = append(nextQueue, dboard)
 				}
